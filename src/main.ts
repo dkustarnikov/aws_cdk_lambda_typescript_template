@@ -1,29 +1,36 @@
+import * as path from 'path';
 import { App, CfnOutput, Stack, StackProps, aws_lambda as lambda, aws_apigateway as apigateway } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export class MyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
-    // Define the Lambda function resource
-    const healthFunction = new lambda.Function(this, 'health', {
-      runtime: lambda.Runtime.NODEJS_20_X, // Choose any supported Node.js runtime
-      code: lambda.Code.fromAsset('dist/health'), // Ensure this points to the compiled lambda directory
-      handler: 'index.handler',
+    // Lambda function definitions (unchanged)
+    const healthFunction = new NodejsFunction(this, `health`, {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(__dirname, 'lambdas/health/index.ts'), // adjust the path as necessary
+      handler: 'handler',
+      bundling: {
+        externalModules: [],
+      },
       environment: {
-        SOME_KEY: 'some_key variable', // Define your environment variable here
+        SOME_KEY: 'some_key variable',
       },
     });
 
     // Define the API Gateway resource
-    const api = new apigateway.LambdaRestApi(this, 'AdultAPI', {
+    const api = new apigateway.LambdaRestApi(this, 'ExampleAPI', {
       handler: healthFunction,
       proxy: false,
     });
 
-    // Define the '/health' resource with a GET method
-    const healthEndpoint = api.root.addResource('health');
-    healthEndpoint.addMethod('GET');
+    // Other API Gateway Endpoints (unchanged)
+    api.root.addResource('health').addMethod('GET', new apigateway.LambdaIntegration(healthFunction), {
+      // authorizer: authorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
+    });
 
     new CfnOutput(this, 'TestBucket', { value: '' });
   }
