@@ -3,14 +3,14 @@
 exports[`Snapshot 1`] = `
 {
   "Outputs": {
-    "AdultAPIEndpointC7F58898": {
+    "ExampleAPIEndpointE7C2DF6D": {
       "Value": {
         "Fn::Join": [
           "",
           [
             "https://",
             {
-              "Ref": "AdultAPIE8FC036D",
+              "Ref": "ExampleAPI1F5011EB",
             },
             ".execute-api.",
             {
@@ -22,7 +22,7 @@ exports[`Snapshot 1`] = `
             },
             "/",
             {
-              "Ref": "AdultAPIDeploymentStageprod129759DA",
+              "Ref": "ExampleAPIDeploymentStageprod6A351654",
             },
             "/",
           ],
@@ -41,15 +41,21 @@ exports[`Snapshot 1`] = `
     },
   },
   "Resources": {
-    "AdultAPIAccount21D4EE67": {
+    "ExampleAPI1F5011EB": {
+      "Properties": {
+        "Name": "ExampleAPI",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "ExampleAPIAccountAA7A9DDA": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "AdultAPIE8FC036D",
+        "ExampleAPI1F5011EB",
       ],
       "Properties": {
         "CloudWatchRoleArn": {
           "Fn::GetAtt": [
-            "AdultAPICloudWatchRole6EEFF4D1",
+            "ExampleAPICloudWatchRoleE11D79E5",
             "Arn",
           ],
         },
@@ -57,7 +63,7 @@ exports[`Snapshot 1`] = `
       "Type": "AWS::ApiGateway::Account",
       "UpdateReplacePolicy": "Retain",
     },
-    "AdultAPICloudWatchRole6EEFF4D1": {
+    "ExampleAPICloudWatchRoleE11D79E5": {
       "DeletionPolicy": "Retain",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -90,56 +96,50 @@ exports[`Snapshot 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "AdultAPIDeployment7AD98FF71f023008aafdb20d4c4350dd63b8b018": {
+    "ExampleAPIDeployment6CF7199Edc4d314d7c5fb7358e1d3938b92708aa": {
       "DependsOn": [
-        "AdultAPIhealthGET1D243DC1",
-        "AdultAPIhealthB895B028",
+        "ExampleAPIhealthGET354EE358",
+        "ExampleAPIhealthE520065D",
       ],
       "Properties": {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": {
-          "Ref": "AdultAPIE8FC036D",
+          "Ref": "ExampleAPI1F5011EB",
         },
       },
       "Type": "AWS::ApiGateway::Deployment",
     },
-    "AdultAPIDeploymentStageprod129759DA": {
+    "ExampleAPIDeploymentStageprod6A351654": {
       "DependsOn": [
-        "AdultAPIAccount21D4EE67",
+        "ExampleAPIAccountAA7A9DDA",
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "AdultAPIDeployment7AD98FF71f023008aafdb20d4c4350dd63b8b018",
+          "Ref": "ExampleAPIDeployment6CF7199Edc4d314d7c5fb7358e1d3938b92708aa",
         },
         "RestApiId": {
-          "Ref": "AdultAPIE8FC036D",
+          "Ref": "ExampleAPI1F5011EB",
         },
         "StageName": "prod",
       },
       "Type": "AWS::ApiGateway::Stage",
     },
-    "AdultAPIE8FC036D": {
-      "Properties": {
-        "Name": "AdultAPI",
-      },
-      "Type": "AWS::ApiGateway::RestApi",
-    },
-    "AdultAPIhealthB895B028": {
+    "ExampleAPIhealthE520065D": {
       "Properties": {
         "ParentId": {
           "Fn::GetAtt": [
-            "AdultAPIE8FC036D",
+            "ExampleAPI1F5011EB",
             "RootResourceId",
           ],
         },
         "PathPart": "health",
         "RestApiId": {
-          "Ref": "AdultAPIE8FC036D",
+          "Ref": "ExampleAPI1F5011EB",
         },
       },
       "Type": "AWS::ApiGateway::Resource",
     },
-    "AdultAPIhealthGET1D243DC1": {
+    "ExampleAPIhealthGET354EE358": {
       "Properties": {
         "AuthorizationType": "NONE",
         "HttpMethod": "GET",
@@ -171,15 +171,15 @@ exports[`Snapshot 1`] = `
           },
         },
         "ResourceId": {
-          "Ref": "AdultAPIhealthB895B028",
+          "Ref": "ExampleAPIhealthE520065D",
         },
         "RestApiId": {
-          "Ref": "AdultAPIE8FC036D",
+          "Ref": "ExampleAPI1F5011EB",
         },
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "AdultAPIhealthGETApiPermissionTesttestAdultAPIB078B3EBGEThealth55D24495": {
+    "ExampleAPIhealthGETApiPermissionTesttestExampleAPI2F426A8EGEThealth8CFBD6DD": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
@@ -207,7 +207,7 @@ exports[`Snapshot 1`] = `
               },
               ":",
               {
-                "Ref": "AdultAPIE8FC036D",
+                "Ref": "ExampleAPI1F5011EB",
               },
               "/test-invoke-stage/GET/health",
             ],
@@ -216,7 +216,7 @@ exports[`Snapshot 1`] = `
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "AdultAPIhealthGETApiPermissiontestAdultAPIB078B3EBGEThealth155E6911": {
+    "ExampleAPIhealthGETApiPermissiontestExampleAPI2F426A8EGEThealth9E48A20C": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
@@ -244,11 +244,11 @@ exports[`Snapshot 1`] = `
               },
               ":",
               {
-                "Ref": "AdultAPIE8FC036D",
+                "Ref": "ExampleAPI1F5011EB",
               },
               "/",
               {
-                "Ref": "AdultAPIDeploymentStageprod129759DA",
+                "Ref": "ExampleAPIDeploymentStageprod6A351654",
               },
               "/GET/health",
             ],
@@ -266,7 +266,7 @@ exports[`Snapshot 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "326d707c89cdb0e9a15346ce9ce37662d569aac82b91c1d1b2f0ef2f6173d4a6.zip",
+          "S3Key": "1cf9d03cd355ad978d5764725defd4ce5f1d604136d54568ec2a3addfe2ab6bd.zip",
         },
         "Environment": {
           "Variables": {
