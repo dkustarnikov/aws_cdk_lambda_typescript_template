@@ -1,4 +1,4 @@
-import { awscdk, github  } from 'projen';
+import { awscdk, github } from 'projen';
 import { TypeScriptModuleResolution } from 'projen/lib/javascript/typescript-config';
 
 const project = new awscdk.AwsCdkTypeScriptApp({
@@ -60,7 +60,9 @@ project.eslint?.addOverride({
   },
 });
 
+// Retrieve the existing build workflow
 const buildWorkflow = project.github?.workflows.find(workflow => workflow.name === 'build');
+
 if (buildWorkflow) {
   // Add triggers to the existing workflow
   buildWorkflow.on({
