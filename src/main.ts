@@ -1,14 +1,14 @@
 import * as path from 'path';
 import { App, CfnOutput, Stack, StackProps, aws_lambda as lambda, aws_apigateway as apigateway } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Construct } from 'constructs';
 
 export class MyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
     // Lambda function definitions (unchanged)
-    const healthFunction = new NodejsFunction(this, `health`, {
+    const healthFunction = new NodejsFunction(this, 'health', {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, 'lambdas/health/index.ts'), // adjust the path as necessary
       handler: 'handler',
@@ -29,7 +29,7 @@ export class MyStack extends Stack {
     // Other API Gateway Endpoints (unchanged)
     api.root.addResource('health').addMethod('GET', new apigateway.LambdaIntegration(healthFunction), {
       // authorizer: authorizer,
-      authorizationType: apigateway.AuthorizationType.CUSTOM,
+      // authorizationType: apigateway.AuthorizationType.CUSTOM,
     });
 
     new CfnOutput(this, 'TestBucket', { value: '' });

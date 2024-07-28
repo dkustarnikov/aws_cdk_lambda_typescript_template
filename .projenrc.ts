@@ -191,7 +191,7 @@ if (buildWorkflow) {
 
   // Add jobs to the existing workflow
   buildWorkflow.addJobs({
-    build: buildJob,
+    'build': buildJob,
     'self-mutation': selfMutationJob,
   });
 }
