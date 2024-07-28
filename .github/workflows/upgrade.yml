@@ -10,7 +10,7 @@ jobs:
     name: Upgrade
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     outputs:
       patch_created: ${{ steps.create_patch.outputs.patch_created }}
     steps:
@@ -24,27 +24,22 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          if git diff --staged --quiet; then
-            echo "patch_created=false" >> $GITHUB_ENV
-          else
-            git diff --staged --patch > .repo.patch
-            echo "patch_created=true" >> $GITHUB_ENV
-          fi
+          git diff --staged --patch --exit-code > .repo.patch || echo "patch_created=true" >> $GITHUB_OUTPUT
+        working-directory: ./
       - name: Upload patch
-        if: ${{ env.patch_created == 'true' }}
+        if: steps.create_patch.outputs.patch_created
         uses: actions/upload-artifact@v4
         with:
           name: .repo.patch
           path: .repo.patch
           overwrite: true
-
   pr:
     name: Create Pull Request
     needs: upgrade
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-    if: ${{ needs.upgrade.outputs.patch_created == 'true' }}
+      contents: read
+    if: ${{ needs.upgrade.outputs.patch_created }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
