@@ -1,15 +1,15 @@
-import { awscdk, github } from 'projen';
+﻿import { awscdk, github, javascript } from 'projen';
 import { TypeScriptModuleResolution } from 'projen/lib/javascript/typescript-config';
 
 const project = new awscdk.AwsCdkTypeScriptApp({
-  cdkVersion: '2.1.0',
+  cdkVersion: '2.260.0',
   defaultReleaseBranch: 'main',
+  packageManager: javascript.NodePackageManager.NPM,
   name: 'project_template',
   projenrcTs: true,
   gitignore: ['.env'],
   deps: ['aws-lambda'], // Runtime dependencies of this module.
   devDeps: [
-    'aws-cdk-lib',
     'aws-lambda-mock-context',
     'constructs',
     '@types/aws-lambda@^8.10.138',
@@ -40,8 +40,8 @@ const project = new awscdk.AwsCdkTypeScriptApp({
 // Add custom scripts
 project.addScripts({
   projen: 'ts-node .projenrc.ts',
-  build: 'tsc',
-  package: 'npm run build && copyfiles -u 1 src/**/* dist',
+  build: 'npx projen && npx projen build && npx projen bundle',
+  package: 'tsc && copyfiles -u 1 src/**/* dist',
   deploy: 'npm run projen && npm run build && npm run test &&npm run package && cdk deploy',
 });
 
@@ -50,15 +50,6 @@ project.jest?.addTestMatch('<rootDir>/test/**/*(*.)@(spec|test).ts?(x)');
 project.jest?.addTestMatch('<rootDir>/src/**/*(*.)@(spec|test).ts?(x)');
 project.jest!.config.modulePaths = ['<rootDir>'];
 
-// Use tsconfig.test.json for ESLint
-project.eslint?.addOverride({
-  files: ['test/**/*.ts'],
-  ...{
-    parserOptions: {
-      project: ['./tsconfig.json', './tsconfig.test.json'],
-    },
-  },
-});
 
 // Retrieve the existing build workflow
 const buildWorkflow = project.github?.workflows.find(workflow => workflow.name === 'build');
@@ -93,11 +84,11 @@ if (buildWorkflow) {
       },
       {
         name: 'Install dependencies',
-        run: 'yarn install --check-files',
+        run: 'npm install',
       },
       {
         name: 'Build project',
-        run: 'yarn build',
+        run: 'npm run build',
       },
       {
         name: 'Build with Projen',

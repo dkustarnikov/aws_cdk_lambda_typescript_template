@@ -1,26 +1,26 @@
 {
   "name": "project_template",
   "scripts": {
-    "build": "tsc",
-    "bundle": "npx projen bundle",
-    "clobber": "npx projen clobber",
-    "compile": "npx projen compile",
-    "default": "npx projen default",
+    "build": "npx projen && npx projen build && npx projen bundle",
+    "bundle": "projen bundle",
+    "clobber": "projen clobber",
+    "compile": "projen compile",
+    "default": "projen default",
     "deploy": "npm run projen && npm run build && npm run test &&npm run package && cdk deploy",
-    "destroy": "npx projen destroy",
-    "diff": "npx projen diff",
-    "eject": "npx projen eject",
-    "eslint": "npx projen eslint",
-    "package": "npm run build && copyfiles -u 1 src/**/* dist",
-    "post-compile": "npx projen post-compile",
-    "post-upgrade": "npx projen post-upgrade",
-    "pre-compile": "npx projen pre-compile",
-    "synth": "npx projen synth",
-    "synth:silent": "npx projen synth:silent",
-    "test": "npx projen test",
-    "test:watch": "npx projen test:watch",
-    "upgrade": "npx projen upgrade",
-    "watch": "npx projen watch",
+    "destroy": "projen destroy",
+    "diff": "projen diff",
+    "eject": "projen eject",
+    "eslint": "projen eslint",
+    "package": "tsc && copyfiles -u 1 src/**/* dist",
+    "post-compile": "projen post-compile",
+    "post-upgrade": "projen post-upgrade",
+    "pre-compile": "projen pre-compile",
+    "synth": "projen synth",
+    "synth:silent": "projen synth:silent",
+    "test": "projen test",
+    "test:watch": "projen test:watch",
+    "upgrade": "projen upgrade",
+    "watch": "projen watch",
     "projen": "ts-node .projenrc.ts"
   },
   "devDependencies": {
@@ -31,25 +31,30 @@
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "^2.145.0",
     "aws-lambda-mock-context": "^3.2.1",
     "copyfiles": "^2.4.1",
-    "esbuild": "^0.25.8",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-plugin-import": "^2.32.0",
     "jest": "^29.7.0",
-    "jest-junit": "^16",
-    "projen": "^0.95.1",
+    "jest-junit": "^17",
+    "projen": "^0.100.7",
     "ts-dotenv": "^0.9.1",
-    "ts-jest": "^29.4.1",
+    "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "aws-cdk-lib": "^2.1.0",
+    "aws-cdk-lib": "^2.260.0",
     "aws-lambda": "^1.0.7",
-    "constructs": "^10.0.5"
+    "constructs": "^10.5.1"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "onFail": "ignore"
+    }
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -98,7 +103,7 @@
       "^.+\\.[t]sx?$": [
         "ts-jest",
         {
-          "tsconfig": "tsconfig.dev.json"
+          "tsconfig": "test/tsconfig.json"
         }
       ]
     },

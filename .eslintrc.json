@@ -14,7 +14,12 @@
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
-    "project": "./tsconfig.dev.json"
+    "projectService": {
+      "allowDefaultProject": [
+        ".projenrc.ts"
+      ],
+      "defaultProject": "./tsconfig.json"
+    }
   },
   "extends": [
     "plugin:import/typescript"
@@ -29,7 +34,7 @@
     "import/resolver": {
       "node": {},
       "typescript": {
-        "project": "./tsconfig.dev.json",
+        "project": "./tsconfig.json",
         "alwaysTryTypes": true
       }
     }
@@ -212,17 +217,6 @@
     ]
   },
   "overrides": [
-    {
-      "files": [
-        "test/**/*.ts"
-      ],
-      "parserOptions": {
-        "project": [
-          "./tsconfig.json",
-          "./tsconfig.test.json"
-        ]
-      }
-    },
     {
       "files": [
         ".projenrc.ts"

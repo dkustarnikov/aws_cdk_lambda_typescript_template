@@ -26,6 +26,11 @@
     "strictPropertyInitialization": false,
     "stripInternal": true,
     "target": "es2020",
+    "types": [
+      "aws-lambda",
+      "jest",
+      "node"
+    ],
     "moduleResolution": "node",
     "typeRoots": [
       "./node_modules/@types"

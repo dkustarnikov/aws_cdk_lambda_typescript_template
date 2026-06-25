@@ -20,9 +20,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Install dependencies
-        run: yarn install --check-files
+        run: npm install
       - name: Build project
-        run: yarn build
+        run: npm run build
       - name: Build with Projen
         run: npx projen build
       - name: Find mutations

@@ -101,6 +101,9 @@ exports[`Snapshot 1`] = `
         "ExampleAPIhealthGET354EE358",
         "ExampleAPIhealthE520065D",
       ],
+      "Metadata": {
+        "aws:cdk:do-not-refactor": true,
+      },
       "Properties": {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": {
@@ -266,7 +269,7 @@ exports[`Snapshot 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "1cf9d03cd355ad978d5764725defd4ce5f1d604136d54568ec2a3addfe2ab6bd.zip",
+          "S3Key": "f04e6f03c13000e5664e0df08d99543a8bb1bd650f9bcc9a861dfe1ec80a251e.zip",
         },
         "Environment": {
           "Variables": {
