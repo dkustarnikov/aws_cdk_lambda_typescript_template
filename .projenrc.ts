@@ -1,4 +1,5 @@
-﻿import { awscdk, github, javascript } from 'projen';
+import { awscdk, javascript } from 'projen';
+import { JobPermission } from 'projen/lib/github/workflows-model';
 import { TypeScriptModuleResolution } from 'projen/lib/javascript/typescript-config';
 
 const project = new awscdk.AwsCdkTypeScriptApp({
@@ -50,141 +51,47 @@ project.jest?.addTestMatch('<rootDir>/test/**/*(*.)@(spec|test).ts?(x)');
 project.jest?.addTestMatch('<rootDir>/src/**/*(*.)@(spec|test).ts?(x)');
 project.jest!.config.modulePaths = ['<rootDir>'];
 
-
-// Retrieve the existing build workflow
-const buildWorkflow = project.github?.workflows.find(workflow => workflow.name === 'build');
-
-if (buildWorkflow) {
-  // Add triggers to the existing workflow
-  buildWorkflow.on({
-    pullRequest: {},
-    workflowDispatch: {},
-  });
-
-  // Define the build job
-  const buildJob = {
-    runsOn: ['ubuntu-latest'],
-    permissions: {
-      contents: github.workflows.JobPermission.READ,
+// GitHub Actions workflow: deploy to AWS on push to main via OIDC role assumption
+const deployWorkflow = project.github?.addWorkflow('deploy');
+deployWorkflow?.on({
+  push: { branches: ['main'] },
+  workflowDispatch: {},
+});
+deployWorkflow?.addJob('deploy', {
+  runsOn: ['ubuntu-latest'],
+  permissions: {
+    idToken: JobPermission.WRITE,
+    contents: JobPermission.READ,
+  },
+  env: {
+    CI: 'true',
+  },
+  steps: [
+    {
+      name: 'Checkout',
+      uses: 'actions/checkout@v6',
     },
-    outputs: {
-      self_mutation_happened: { stepId: 'self_mutation', outputName: 'self_mutation_happened' },
+    {
+      name: 'Configure AWS credentials',
+      uses: 'aws-actions/configure-aws-credentials@v4',
+      with: {
+        'role-to-assume': 'arn:aws:iam::085180950819:role/github-actions-deploy',
+        'aws-region': 'us-east-1',
+      },
     },
-    env: {
-      CI: 'true',
+    {
+      name: 'Install dependencies',
+      run: 'npm install',
     },
-    steps: [
-      {
-        name: 'Checkout',
-        uses: 'actions/checkout@v4',
-        with: {
-          ref: '${{ github.event.pull_request.head.ref }}',
-          repository: '${{ github.event.pull_request.head.repo.full_name }}',
-        },
-      },
-      {
-        name: 'Install dependencies',
-        run: 'npm install',
-      },
-      {
-        name: 'Build project',
-        run: 'npm run build',
-      },
-      {
-        name: 'Build with Projen',
-        run: 'npx projen build',
-      },
-      {
-        name: 'Find mutations',
-        id: 'self_mutation',
-        run: `
-          git add .
-          if git diff --staged --quiet; then
-            echo "self_mutation_happened=false" >> $GITHUB_ENV
-          else
-            git diff --staged --patch > .repo.patch
-            echo "self_mutation_happened=true" >> $GITHUB_ENV
-          fi
-        `,
-      },
-      {
-        name: 'Upload patch',
-        if: 'env.self_mutation_happened == true',
-        uses: 'actions/upload-artifact@v4',
-        with: {
-          name: '.repo.patch',
-          path: '.repo.patch',
-          overwrite: true,
-        },
-      },
-      {
-        name: 'Fail build on mutation',
-        if: 'env.self_mutation_happened == true',
-        run: `
-          echo "::error::Files were changed during build (see build log). If this was triggered from a fork, you will need to update your branch."
-          cat .repo.patch
-          exit 1
-        `,
-      },
-    ],
-  };
-
-  // Define the self-mutation job
-  const selfMutationJob = {
-    needs: ['build'],
-    runsOn: ['ubuntu-latest'],
-    permissions: {
-      contents: github.workflows.JobPermission.WRITE,
+    {
+      name: 'Build',
+      run: 'npx projen build',
     },
-    if: 'always() && needs.build.outputs.self_mutation_happened == true && !(github.event.pull_request.head.repo.full_name != github.repository)',
-    steps: [
-      {
-        name: 'Checkout',
-        uses: 'actions/checkout@v4',
-        with: {
-          token: '${{ secrets.PROJEN_GITHUB_TOKEN }}',
-          ref: '${{ github.event.pull_request.head.ref }}',
-          repository: '${{ github.event.pull_request.head.repo.full_name }}',
-        },
-      },
-      {
-        name: 'Download patch',
-        uses: 'actions/download-artifact@v4',
-        with: {
-          name: '.repo.patch',
-          path: '${{ runner.temp }}',
-        },
-      },
-      {
-        name: 'Apply patch',
-        run: '[ -s ${{ runner.temp }}/.repo.patch ] && git apply ${{ runner.temp }}/.repo.patch || echo "Empty patch. Skipping."',
-      },
-      {
-        name: 'Set git identity',
-        run: `
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-        `,
-      },
-      {
-        name: 'Push changes',
-        env: {
-          PULL_REQUEST_REF: '${{ github.event.pull_request.head.ref }}',
-        },
-        run: `
-          git add .
-          git commit -s -m "chore: self mutation"
-          git push origin HEAD:$PULL_REQUEST_REF
-        `,
-      },
-    ],
-  };
-
-  // Add jobs to the existing workflow
-  buildWorkflow.addJobs({
-    'build': buildJob,
-    'self-mutation': selfMutationJob,
-  });
-}
+    {
+      name: 'Deploy',
+      run: 'npx cdk deploy --require-approval never',
+    },
+  ],
+});
 
 project.synth();
