@@ -44,7 +44,7 @@ const devEnv = {
 
 const app = new App();
 
-new MyStack(app, 'template-dev', { env: devEnv });
+new MyStack(app, 'civi', { env: devEnv });
 
 
 app.synth();
