@@ -1,5 +1,4 @@
 import { awscdk, javascript } from 'projen';
-import { JobPermission } from 'projen/lib/github/workflows-model';
 import { TypeScriptModuleResolution } from 'projen/lib/javascript/typescript-config';
 
 const project = new awscdk.AwsCdkTypeScriptApp({
@@ -8,6 +7,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   packageManager: javascript.NodePackageManager.NPM,
   name: 'project_template',
   projenrcTs: true,
+  github: false,
   gitignore: ['.env'],
   deps: ['aws-lambda'], // Runtime dependencies of this module.
   devDeps: [
@@ -50,48 +50,5 @@ project.addScripts({
 project.jest?.addTestMatch('<rootDir>/test/**/*(*.)@(spec|test).ts?(x)');
 project.jest?.addTestMatch('<rootDir>/src/**/*(*.)@(spec|test).ts?(x)');
 project.jest!.config.modulePaths = ['<rootDir>'];
-
-// GitHub Actions workflow: deploy to AWS on push to main via OIDC role assumption
-const deployWorkflow = project.github?.addWorkflow('deploy');
-deployWorkflow?.on({
-  push: { branches: ['main'] },
-  workflowDispatch: {},
-});
-deployWorkflow?.addJob('deploy', {
-  runsOn: ['ubuntu-latest'],
-  permissions: {
-    idToken: JobPermission.WRITE,
-    contents: JobPermission.READ,
-  },
-  env: {
-    CI: 'true',
-  },
-  steps: [
-    {
-      name: 'Checkout',
-      uses: 'actions/checkout@v6',
-    },
-    {
-      name: 'Configure AWS credentials',
-      uses: 'aws-actions/configure-aws-credentials@v4',
-      with: {
-        'role-to-assume': 'arn:aws:iam::085180950819:role/github-actions-deploy',
-        'aws-region': 'us-east-1',
-      },
-    },
-    {
-      name: 'Install dependencies',
-      run: 'npm install',
-    },
-    {
-      name: 'Build',
-      run: 'npx projen build',
-    },
-    {
-      name: 'Deploy',
-      run: 'npx cdk deploy --require-approval never',
-    },
-  ],
-});
 
 project.synth();
